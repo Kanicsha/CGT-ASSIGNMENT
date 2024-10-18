@@ -518,6 +518,62 @@ vector<vector<int> > findFundamentalCutsets(vector<pair<int, int> >& mst_edges, 
 
     return cutsets;
 }
+//code for edge connectivity
+int edgeConnectivity(vector<vector<int> > graph, int n) {
+    int V = graph.size();
+    int minEdgeConnectivity = INF;
+    vector<int>p(n);
+    // Try removing each edge
+    for (int u = 0; u < V; u++) {
+    	int i=0;
+        for (int v = 0; v < V; v++) {
+            if (graph[u][v]==1) { // If there is an edge
+                // Temporarily remove the edge
+                p[i]=v;
+                graph[u][v] = graph[v][u] = 0;
+                i++;
+                if (!is_connected_graph(graph, n)) {
+                    minEdgeConnectivity = min(minEdgeConnectivity,i);
+					cout<<"Miin edgeconnectivity is\n"<<minEdgeConnectivity; // Found a disconnecting edge
+                }
+            }
+        }
+	//Restore the deleted edges
+        for(int j=0;j<p.size();j++){
+      		graph[u][p[j]] = graph[p[j]][u] = 1;
+		  }
+    	}
+
+ return (minEdgeConnectivity == INF) ? n : minEdgeConnectivity; // If no edges can disconnect, return 0
+}
+// Function to find vertex connectivity (k-connected)
+int vertexConnectivity(const vector<vector<int> >& graph, int n) {
+    int V = graph.size();
+    int minVertexConnectivity = V - 1; // The maximum possible value for k
+    // Try removing every combination of k vertices
+    for (int k = 1; k < V; ++k) {
+        bool foundDisconnect = false;
+        // Iterate over all vertices to remove
+        for (int u = 0; u < V; ++u) {
+            vector<vector<int> > tempGraph = graph; // Create a copy of the graph
+            // Remove vertex u by disconnecting all its edges
+            for (int v = 0; v < V; ++v) {
+                tempGraph[u][v] = 0;
+                tempGraph[v][u] = 0;
+            }
+            // Check if the graph is still connected after removing vertex u
+            if (!is_connected_graph(tempGraph, n)) {
+                foundDisconnect = true;
+                break; // No need to check other vertices if we found a disconnect
+            }
+        }
+        if (foundDisconnect) {
+            return k; // If removing k vertices disconnects the graph
+        }
+    }
+    return minVertexConnectivity;
+}
+
 int main() {
     int n, ele, size;
     
@@ -609,6 +665,13 @@ int main() {
         cout << endl;
     }
     }
+	 int e=edgeConnectivity(graph3,n);
+         int v=vertexConnectivity(graph3,n);
+         cout<<"Vertex connectivity is"<<v<<endl;
+	 cout<<"Edge connectivity is"<<e<<endl;
+	 cout<<"Given graph is:"<<v<<"connected"<<endl;
+
+		
 }
         
     else
@@ -618,4 +681,4 @@ int main() {
 }
 
     return 0;
-	}
+}
